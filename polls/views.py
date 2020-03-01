@@ -3,7 +3,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Question
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 # Create your views here.
 
 
@@ -14,22 +14,18 @@ def index(request):
 
 
 def detail(request, question_id):
-    try:
-        question = Question.objects.get(pk=question_id)
-    except ObjectDoesNotExist:
-        # checks if the the question exists or not
-        raise Http404("Question Does not exist")
+    question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/details.html', {'question': question})
 
 
 def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question': question})
 
 
 def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
     try:
-        question = Question.objects.get(pk=question_id)
         # request.POST.get() returns the value from form inputs using their names
         selected_choice = question.choice_set.get(
             pk=request.POST.get('choice'))
